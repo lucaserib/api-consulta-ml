@@ -7,12 +7,10 @@ export default async function handler(
   res: NextApiResponse
 ) {
   try {
-    // Obtém um token válido (renova se necessário)
     const token = await getValidAccessToken();
 
-    // Faz a requisição autenticada à API do Mercado Livre
     const { data } = await axios.get(
-      "https://api.mercadolibre.com/products/MLB38663582",
+      "https://api.mercadolibre.com/users/1164878601",
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -20,9 +18,16 @@ export default async function handler(
       }
     );
 
+    // Retorna os dados da API
     res.status(200).json(data);
   } catch (error: any) {
     console.error("Erro ao fazer a requisição autenticada:", error.message);
-    res.status(500).json({ error: "Erro ao obter dados do Mercado Livre" });
+
+    // Trata erros mais detalhadamente
+    if (error.response) {
+      res.status(error.response.status).json({ error: error.response.data });
+    } else {
+      res.status(500).json({ error: "Erro ao obter dados do Mercado Livre" });
+    }
   }
 }
